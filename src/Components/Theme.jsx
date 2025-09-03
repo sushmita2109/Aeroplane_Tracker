@@ -1,8 +1,8 @@
 import Box from "@mui/material/Box";
 import React, { useEffect } from "react";
-import morningImage from "../Assets/morning.jpg";
-import eveningImage from "../Assets/evening.jpg";
-import nightImage from "../Assets/night.jpg";
+import morningImage from "../assets/morning.jpg";
+import eveningImage from "../assets/evening.jpg";
+import nightImage from "../assets/night.jpg";
 
 const Theme = () => {
   useEffect(() => {
