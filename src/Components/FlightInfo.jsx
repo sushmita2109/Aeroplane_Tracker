@@ -1,10 +1,29 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 
 const FlightInfo = () => {
   const [flights, setFlights] = useState([]);
+  const [prevFlights, setPrevFlights] = useState([]);
   const [error, setError] = useState("");
   const [lat, setLat] = useState("");
   const [lon, setLon] = useState("");
+
+  // ✅ Ask for notification permission when the app loads
+  useEffect(() => {
+    if ("Notification" in window) {
+      Notification.requestPermission();
+    }
+  }, []);
+
+  // ✅ Notify when a new flight enters
+  const notifyUser = (flight) => {
+    if (Notification.permission === "granted") {
+      new Notification("✈ Aircraft Nearby!", {
+        body: `Flight ${flight[1] || "Unknown"} from ${
+          flight[2] || "Unknown"
+        } is near you.`,
+      });
+    }
+  };
 
   const fetchFlights = async (lat, lon) => {
     const radius = 0.5; // ~50km
@@ -15,8 +34,18 @@ const FlightInfo = () => {
     try {
       const response = await fetch(url);
       const data = await response.json();
+
       if (data.states) {
+        // ✅ Find flights that are new (not in prevFlights)
+        const newFlights = data.states.filter(
+          (flight) => !prevFlights.some((f) => f[0] === flight[0]) // flight[0] = ICAO 24-bit address
+        );
+
+        // ✅ Trigger notification for each new flight
+        newFlights.forEach((flight) => notifyUser(flight));
+
         setFlights(data.states);
+        setPrevFlights(data.states);
         setError("");
       } else {
         setFlights([]);
